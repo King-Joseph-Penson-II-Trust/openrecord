@@ -10,7 +10,7 @@ RUN apt-get install -y nodejs
 RUN apt-get install -y python3
 RUN apt-get install -y python3-pip
 RUN pip install django
-RUN pip install requirements.txt
+RUN pip install -r requirements.txt
 
 ENV LANG en_US.utf8
 
