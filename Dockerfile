@@ -4,7 +4,7 @@ WORKDIR /home/app
 ADD . /home/app
 
 # Download nodejs and django
-RUN apt-get update- y
+RUN apt-get update -y
 RUN apt-get install -y vim
 RUN apt-get install -y nodejs
 RUN apt-get install -y python3
