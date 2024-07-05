@@ -4,6 +4,7 @@ import Login from "./pages/Login"
 import Register from "./pages/Register"
 import Home from "./pages/Home"
 import NotFound from "./pages/NotFound"
+import BlocklistManager from "./components/BlocklistManager"
 import ProtectedRoute from "./components/ProtectedRoute"
 
 function Logout() {
@@ -30,9 +31,11 @@ function App() {
 						</ProtectedRoute>
 					}
 				/>
+
 				<Route path="/login" element={<Login />}/>
         <Route path="/logout" element={<Logout />}/>
 				<Route path="/register" element={<RegisterAndLogout />}/>
+				<Route path="/blocklist" element={<BlocklistManager />} />
 				<Route path="*" element={<NotFound />}></Route>
 			</Routes>
 		</BrowserRouter>

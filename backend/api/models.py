@@ -11,3 +11,10 @@ class Note(models.Model):
         return self.title
 
 
+class BlocklistItem(models.Model):
+    ip_or_domain = models.CharField(max_length=255, unique=True)
+    added_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True) # Fixed on_delete
+    added_on = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.ip_or_domain
