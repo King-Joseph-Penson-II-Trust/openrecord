@@ -63,8 +63,8 @@ class Record(models.Model):
     tracking_number = models.CharField(max_length=100, blank=True, null=True, verbose_name="Tracking Number")
     tracking_type = models.CharField(max_length=20, choices=TRACKING_TYPE_CHOICES, blank=True, null=True, verbose_name="Tracking Type")
     return_receipt = models.CharField(max_length=100, blank=True, null=True, verbose_name="Return Receipt")
-    blockchain_record = models.JSONField(default=list, verbose_name="Blockchain Record")  # Start with an empty list, can be extended later
-    record_location = models.JSONField(default=list, verbose_name="Record Location")  # Array of objects for cloud bucket locations, local storage reference, etc.
+    #blockchain_record = models.JSONField(default=list, verbose_name="Blockchain Record")  # Start with an empty list, can be extended later
+    #record_location = models.JSONField(default=list, verbose_name="Record Location")  # Array of objects for cloud bucket locations, local storage reference, etc.
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, verbose_name="UUID")
     related_documents = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='related_records', verbose_name="Related Documents")
     company_name = models.CharField(max_length=255, blank=True, null=True, verbose_name="Company Name")
