@@ -24,8 +24,8 @@ class RecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = Record
         fields = [
-            'id', 'tracking_number', 'return_receipt', 'record_type', 'tracking_type', 'status', 'company_name', 'ceo', 'cfo', 'mailing_address', 
-            'city', 'state', 'zip', 'email', 'phone_number', 'created_by', 'created_at', 'updated_at', 'is_deleted', 'pdf_file_aws', 'tracking_mail_receipt_aws', 'return_receipt_file_aws', 'hash'
+            'id', 'title','tracking_number', 'return_receipt', 'record_type', 'tracking_type', 'status', 'company_name', 'ceo', 'cfo', 'mailing_address', 
+            'city', 'state', 'zip', 'email', 'phone_number', 'created_by', 'created_at', 'updated_at', 'is_deleted', 'pdf_file_aws', 'tracking_mail_receipt_aws', 'return_receipt_file_aws','hash'
         ]
         extra_kwargs = {
             'pdf_file': {'required': False, 'allow_null': True},

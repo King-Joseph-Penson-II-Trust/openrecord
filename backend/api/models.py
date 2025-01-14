@@ -6,7 +6,7 @@ import hashlib
 import os
 from django.utils.text import slugify
 from django.conf import settings
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse, urlunparse
 
 
 class Note(models.Model):
@@ -35,23 +35,23 @@ def upload_return_receipt(instance, filename):
 
 class Record(models.Model):
     RECORD_TYPE_CHOICES = [
-        ('cafv', 'Conditional_Acceptance_for_Value'),
-        ('ipn', 'International_Promissory_Note'),
-        ('boe', 'International_Bill_of_Exchange'),
-        ('noticeBreach', 'Notice_of_Breach'),
-        ('noticeCure', 'Notice_of_Cure'),
-        ('noticeDefault', 'Notice_of_Default'),
-        ('tort', 'Tort_Claim'),
-        ('noticeDemand', 'Notice_of_Demand'),
-        ('noticeDispute', 'Notice_of_Dispute'),
-        ('noticeFraud', 'Notice_of_Fraud'),
-        ('executor', 'Executor_Letter'),
-        ('crn', 'Copyright_Notice'),
+        ('cafv', 'Conditional-Acceptance-for-Value'),
+        ('ipn', 'International-Promissory-Note'),
+        ('boe', 'International-Bill-of-Exchange'),
+        ('noticeBreach', 'Notice-of-Breach'),
+        ('noticeCure', 'Notice-of-Cure'),
+        ('noticeDefault', 'Notice-of-Default'),
+        ('tort', 'Tort-Claim'),
+        ('noticeDemand', 'Notice-of-Demand'),
+        ('noticeDispute', 'Notice-of-Dispute'),
+        ('noticeFraud', 'Notice-of-Fraud'),
+        ('executor', 'Executor-Letter'),
+        ('crn', 'Copyright-Notice'),
     ]
 
     TRACKING_TYPE_CHOICES = [
-        ('certifiedmail_usps', 'Certified Mail USPS'),
-        ('registeredmail_usps', 'Registered Mail USPS'),
+        ('certifiedmail_usps', 'Certified-Mail-USPS'),
+        ('registeredmail_usps', 'Registered-Mail-USPS'),
     ]
 
     STATUS_CHOICES = [
@@ -83,14 +83,10 @@ class Record(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Updated At")  # Timestamp for when the record is last updated
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name="Status")
     is_deleted = models.BooleanField(default=False, verbose_name="Is Deleted")  # Soft delete flag
-    
-    
     pdf_file_aws = models.FileField(storage=S3Boto3Storage(bucket_name='omnistance-openrecord-pdfs'), upload_to=upload_to, blank=True, null=True, verbose_name="PDF File")
     tracking_mail_receipt_aws = models.FileField(storage=S3Boto3Storage(bucket_name='omnistance-openrecord-tracking'), upload_to=upload_tracking_mail_receipt, blank=True, null=True, verbose_name="Tracking Mail Receipt")
     return_receipt_file_aws = models.FileField(storage=S3Boto3Storage(bucket_name='omnistance-openrecord-greencards'), upload_to=upload_return_receipt, blank=True, null=True, verbose_name="Return Receipt File")
-    
-    
-    hash = models.CharField(max_length=64, blank=True, null=True, verbose_name="SHA256")
+    hash = models.CharField(max_length=64, blank=True, null=True, editable=False, verbose_name="SHA256")
     
 
     def generate_hash(self, file):
@@ -99,10 +95,6 @@ class Record(models.Model):
             hasher.update(chunk)
         return hasher.hexdigest()
 
-    def generate_s3_url(self, file_field):
-        if file_field:
-            return urljoin(settings.AWS_S3_ENDPOINT_URL, file_field.name)
-        return None
 
     def save(self, *args, **kwargs):
         # Generate the title
@@ -111,8 +103,13 @@ class Record(models.Model):
         # Generate the hash if a PDF file is uploaded
         if self.pdf_file_aws:
             self.hash = self.generate_hash(self.pdf_file_aws)
+            self.pdf_file_url = self.pdf_file_aws.url
 
+        if self.tracking_mail_receipt_aws:
+            self.tracking_mail_receipt_url = self.tracking_mail_receipt_aws.url
 
+        if self.return_receipt_file_aws:
+            self.return_receipt_file_url = self.return_receipt_file_aws.url
         super().save(*args, **kwargs)
     
 
