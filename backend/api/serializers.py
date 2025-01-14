@@ -19,33 +19,16 @@ class NoteSerializer(serializers.ModelSerializer):
         extra_kwargs = {"author": {"read_only": True}}
     
 class RecordSerializer(serializers.ModelSerializer):
-    pdf_file_url = serializers.SerializerMethodField()
-    tracking_mail_receipt_url = serializers.SerializerMethodField()
-    return_receipt_file_url = serializers.SerializerMethodField()
+    
 
     class Meta:
         model = Record
         fields = [
             'id', 'tracking_number', 'return_receipt', 'record_type', 'tracking_type', 'status', 'company_name', 'ceo', 'cfo', 'mailing_address', 
-            'city', 'state', 'zip', 'email', 'phone_number', 'created_by', 'created_at', 'updated_at', 'is_deleted', 'pdf_file_url',  'return_receipt_file_url', 'tracking_mail_receipt_url', 'pdf_file', 'tracking_mail_receipt', 'return_receipt_file', 'hash'
+            'city', 'state', 'zip', 'email', 'phone_number', 'created_by', 'created_at', 'updated_at', 'is_deleted', 'pdf_file_aws', 'tracking_mail_receipt_aws', 'return_receipt_file_aws', 'hash'
         ]
         extra_kwargs = {
             'pdf_file': {'required': False, 'allow_null': True},
             'tracking_mail_receipt': {'required': False, 'allow_null': True},
             'return_receipt_file': {'required': False, 'allow_null': True},
         }
-
-    def get_pdf_file_url(self, obj):
-        if obj.pdf_file:
-            return obj.pdf_file.url
-        return None
-
-    def get_tracking_mail_receipt_url(self, obj):
-        if obj.tracking_mail_receipt:
-            return obj.tracking_mail_receipt.url
-        return None
-
-    def get_return_receipt_file_url(self, obj):
-        if obj.return_receipt_file:
-            return obj.return_receipt_file.url
-        return None
