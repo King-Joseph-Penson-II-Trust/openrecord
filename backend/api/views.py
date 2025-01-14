@@ -42,14 +42,14 @@ class CreateUserView(generics.CreateAPIView):
 class RecordListCreate(generics.ListCreateAPIView):
     queryset = Record.objects.all()
     serializer_class = RecordSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
 class RecordDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
     queryset = Record.objects.all()
     serializer_class = RecordSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
 class RecordView(generics.RetrieveAPIView):
     queryset = Record.objects.all()
     serializer_class = RecordSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
