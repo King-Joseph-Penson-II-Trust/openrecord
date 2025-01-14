@@ -5,6 +5,8 @@ import uuid
 import hashlib
 import os
 from django.utils.text import slugify
+from django.conf import settings
+from urllib.parse import urljoin
 
 
 class Note(models.Model):
@@ -24,7 +26,7 @@ def upload_to(instance, filename):
 def upload_tracking_mail_receipt(instance, filename):
     base, extension = os.path.splitext(filename)
     new_filename = f"{slugify(instance.title)}-tracking-mail-receipt{extension}"
-    return os.path.join('tracking_mail_receipts/', new_filename)
+    return os.path.join('tracking_mail_receipt_awss/', new_filename)
 
 def upload_return_receipt(instance, filename):
     base, extension = os.path.splitext(filename)
@@ -81,9 +83,13 @@ class Record(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Updated At")  # Timestamp for when the record is last updated
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name="Status")
     is_deleted = models.BooleanField(default=False, verbose_name="Is Deleted")  # Soft delete flag
-    pdf_file = models.FileField(storage=S3Boto3Storage(bucket_name='omnistance-openrecord-pdfs'), upload_to=upload_to, blank=True, null=True, verbose_name="PDF File")
-    tracking_mail_receipt = models.FileField(storage=S3Boto3Storage(bucket_name='omnistance-openrecord-tracking'), upload_to=upload_tracking_mail_receipt, blank=True, null=True, verbose_name="Tracking Mail Receipt")
-    return_receipt_file = models.FileField(storage=S3Boto3Storage(bucket_name='omnistance-openrecord-greencards'), upload_to=upload_return_receipt, blank=True, null=True, verbose_name="Return Receipt File")
+    
+    
+    pdf_file_aws = models.FileField(storage=S3Boto3Storage(bucket_name='omnistance-openrecord-pdfs'), upload_to=upload_to, blank=True, null=True, verbose_name="PDF File")
+    tracking_mail_receipt_aws = models.FileField(storage=S3Boto3Storage(bucket_name='omnistance-openrecord-tracking'), upload_to=upload_tracking_mail_receipt, blank=True, null=True, verbose_name="Tracking Mail Receipt")
+    return_receipt_file_aws = models.FileField(storage=S3Boto3Storage(bucket_name='omnistance-openrecord-greencards'), upload_to=upload_return_receipt, blank=True, null=True, verbose_name="Return Receipt File")
+    
+    
     hash = models.CharField(max_length=64, blank=True, null=True, verbose_name="SHA256")
     
 
@@ -93,14 +99,19 @@ class Record(models.Model):
             hasher.update(chunk)
         return hasher.hexdigest()
 
+    def generate_s3_url(self, file_field):
+        if file_field:
+            return urljoin(settings.AWS_S3_ENDPOINT_URL, file_field.name)
+        return None
 
     def save(self, *args, **kwargs):
         # Generate the title
         self.title = f"{self.get_record_type_display()}_{self.tracking_number or 'No Tracking Number'}_{self.company_name or 'No Company Name'}"
 
         # Generate the hash if a PDF file is uploaded
-        if self.pdf_file:
-            self.hash = self.generate_hash(self.pdf_file)
+        if self.pdf_file_aws:
+            self.hash = self.generate_hash(self.pdf_file_aws)
+
 
         super().save(*args, **kwargs)
     
