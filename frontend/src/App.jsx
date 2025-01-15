@@ -5,10 +5,10 @@ import Register from "./pages/Register"
 import Home from "./pages/Home"
 import NotFound from "./pages/NotFound"
 import BlocklistManager from "./components/BlocklistManager"
-import ProtectedRoute from "./components/ProtectedRoute"
 import RecordCreation from "./components/RecordCreation"
 import RecordList from "./components/RecordList"
 import RecordSearch from "./components/RecordSearch"
+import ProtectedRoute from "./components/ProtectedRoute"
 
 function Logout() {
 	localStorage.clear()
@@ -34,14 +34,20 @@ function App() {
 						</ProtectedRoute>
 					}
 				/>
-				<Route path="/search" component={RecordSearch} />
-				<Route path="/create" component={RecordCreation} />
-				<Route path="/list" component={RecordList} />
+				
 				<Route path="/login" element={<Login />}/>
         		<Route path="/logout" element={<Logout />}/>
 				<Route path="/register" element={<RegisterAndLogout />}/>
 				<Route path="/blocklist" element={<BlocklistManager />} />
 				<Route path="*" element={<NotFound />}></Route>
+				<Route
+					path="/create"
+					element={
+						<ProtectedRoute>
+							<RecordCreation />
+						</ProtectedRoute>
+					}
+				/>
 				
 			</Routes>
 		</BrowserRouter>
