@@ -9,7 +9,7 @@ const RecordList = () => {
   useEffect(() => {
     const fetchRecords = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/records/', {
+        const response = await axios.get('http://localhost:8001/api/records/', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },

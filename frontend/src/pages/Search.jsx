@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import api from "../api"
-import axios from 'axios';
+import api from "../api";
 
 const RecordSearch = () => {
   const [trackingNumber, setTrackingNumber] = useState('');
@@ -9,7 +8,7 @@ const RecordSearch = () => {
 
   const handleSearch = async () => {
     try {
-      const response = await axios.get('http://localhost:8001/api/records/search/', {
+      const response = await api.get('/records/search/', {
         params: {
           tracking_number: trackingNumber,
           return_receipt: returnReceipt,
