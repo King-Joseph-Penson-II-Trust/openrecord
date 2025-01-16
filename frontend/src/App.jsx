@@ -9,6 +9,7 @@ import RecordCreation from "./components/RecordCreation"
 import RecordList from "./components/RecordList"
 import RecordSearch from "./components/RecordSearch"
 import ProtectedRoute from "./components/ProtectedRoute"
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function Logout() {
 	localStorage.clear()
@@ -27,7 +28,7 @@ function App() {
 		<BrowserRouter>
 			<Routes>
 				<Route
-					path="/"
+					path="/home"
 					element={
 						<ProtectedRoute>
 							<Home />
@@ -49,7 +50,14 @@ function App() {
 					}
 				/>
 				<Route path="/search" element={<RecordSearch />} />
-				
+				<Route
+					path="/records"
+					element={
+						<ProtectedRoute>
+							<RecordList />
+						</ProtectedRoute>
+					}
+				/>
 			</Routes>
 		</BrowserRouter>
 

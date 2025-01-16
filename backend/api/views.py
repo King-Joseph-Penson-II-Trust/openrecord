@@ -43,7 +43,7 @@ class CreateUserView(generics.CreateAPIView):
 class RecordListCreate(generics.ListCreateAPIView):
     queryset = Record.objects.all()
     serializer_class = RecordSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -52,6 +52,11 @@ class RecordDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
     queryset = Record.objects.all()
     serializer_class = RecordSerializer
     permission_classes = [AllowAny]
+
+class RecordListView(generics.ListAPIView):
+    queryset = Record.objects.all()
+    serializer_class = RecordSerializer
+    permission_classes = [IsAuthenticated]
 
 class RecordView(generics.RetrieveAPIView):
     queryset = Record.objects.all()
