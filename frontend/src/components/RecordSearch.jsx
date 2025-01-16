@@ -1,45 +1,85 @@
 import React, { useState } from 'react';
-import api from "../api"
-import axios from 'axios';
+import api from '../api';
 
 const RecordSearch = () => {
-  const [trackingNumber, setTrackingNumber] = useState('');
-  const [returnReceipt, setReturnReceipt] = useState('');
-  const [results, setResults] = useState([]);
+  const [formData, setFormData] = useState({
+    tracking_number: '',
+    return_receipt: '',
+  });
 
-  const handleSearch = async () => {
+  const [results, setResults] = useState([]);
+  const [errors, setErrors] = useState({});
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const response = await axios.get('http://localhost:8001/api/records/search/', {
+      const response = await api.get('/api/records/search/', {
         params: {
-          tracking_number: trackingNumber,
-          return_receipt: returnReceipt,
+          tracking_number: formData.tracking_number,
+          return_receipt: formData.return_receipt,
         },
       });
       setResults(response.data);
+      setErrors({});
     } catch (error) {
-      console.error('Error fetching records:', error);
+      if (error.response && error.response.data) {
+        setErrors(error.response.data);
+        alert('Error searching records: ' + error.response.data.detail);
+      } else {
+        console.error('Error searching records:', error);
+        alert('Error searching records');
+      }
     }
   };
 
   return (
     <div>
-      <h2>Record Search</h2>
-      <input
-        type="text"
-        placeholder="Tracking Number"
-        value={trackingNumber}
-        onChange={(e) => setTrackingNumber(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Return Receipt"
-        value={returnReceipt}
-        onChange={(e) => setReturnReceipt(e.target.value)}
-      />
-      <button onClick={handleSearch}>Search</button>
+      <h2>Search Records</h2>
+      <form onSubmit={handleSubmit}>
+        <label>
+          Tracking Number:
+          <input
+            type="text"
+            name="tracking_number"
+            placeholder="Tracking Number"
+            value={formData.tracking_number}
+            onChange={handleChange}
+          />
+        </label>
+        {errors.tracking_number && <p>{errors.tracking_number}</p>}
+        
+        <label>
+          Return Receipt:
+          <input
+            type="text"
+            name="return_receipt"
+            placeholder="Return Receipt"
+            value={formData.return_receipt}
+            onChange={handleChange}
+          />
+        </label>
+        {errors.return_receipt && <p>{errors.return_receipt}</p>}
+        
+        <button type="submit">Search</button>
+      </form>
+      
+      <h3>Search Results</h3>
       <ul>
         {results.map((record) => (
-          <li key={record.id}>{record.title}</li>
+          <li key={record.id}>
+            <h4>{record.title}</h4>
+            <iframe src={record.pdf_file_aws} title="PDF File" width="300" height="200"></iframe>
+            <iframe src={record.tracking_mail_receipt_aws} title="Tracking Mail Receipt" width="300" height="200"></iframe>
+            <iframe src={record.return_receipt_file_aws} title="Return Receipt File" width="300" height="200"></iframe>
+          </li>
         ))}
       </ul>
     </div>
