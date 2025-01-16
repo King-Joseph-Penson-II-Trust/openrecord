@@ -48,6 +48,7 @@ function App() {
 						</ProtectedRoute>
 					}
 				/>
+				<Route path="/search" element={<RecordSearch />} />
 				
 			</Routes>
 		</BrowserRouter>
