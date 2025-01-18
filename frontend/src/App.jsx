@@ -5,11 +5,11 @@ import Register from "./pages/Register"
 import Home from "./pages/Home"
 import NotFound from "./pages/NotFound"
 import BlocklistManager from "./components/BlocklistManager"
-import RecordCreation from "./components/RecordCreation"
 import RecordList from "./components/RecordList"
 import RecordSearch from "./components/RecordSearch"
 import ProtectedRoute from "./components/ProtectedRoute"
 import 'bootstrap/dist/css/bootstrap.min.css';
+import NewRecord from "./pages/NewRecord"
 
 function Logout() {
 	localStorage.clear()
@@ -45,7 +45,7 @@ function App() {
 					path="/create"
 					element={
 						<ProtectedRoute>
-							<RecordCreation />
+							<NewRecord />
 						</ProtectedRoute>
 					}
 				/>
