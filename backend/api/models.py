@@ -106,7 +106,7 @@ class Record(models.Model):
             self.pdf_file_url = self.pdf_file_aws.url
 
         if self.tracking_mail_receipt_aws:
-            self.tracking_mail_receipt_url = self.tracking_mail_receipt_aws.url
+            self.tracking_mail_receipt_aws = self.tracking_mail_receipt_aws.url
 
         if self.return_receipt_file_aws:
             self.return_receipt_file_url = self.return_receipt_file_aws.url

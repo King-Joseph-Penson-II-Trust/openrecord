@@ -9,6 +9,9 @@ from rest_framework.views import APIView
 from rest_framework.parsers import JSONParser
 from .models import Note, Record
 from uuid import UUID
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class NoteListCreate(generics.ListCreateAPIView):
@@ -43,15 +46,12 @@ class CreateUserView(generics.CreateAPIView):
 class RecordListCreate(generics.ListCreateAPIView):
     queryset = Record.objects.all()
     serializer_class = RecordSerializer
-    permission_classes = [IsAuthenticated]
-
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+    permission_classes = [AllowAny]
 
 class RecordDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
     queryset = Record.objects.all()
     serializer_class = RecordSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
 class RecordListView(generics.ListAPIView):
     queryset = Record.objects.all()
