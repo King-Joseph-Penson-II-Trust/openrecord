@@ -28,8 +28,11 @@ class RecordSerializer(serializers.ModelSerializer):
              'cfo', 'mailing_address','city', 'state', 'zip', 'email', 'phone_number', 'created_by', 'created_at', 'updated_at', 'is_deleted', 'pdf_file_aws', 'tracking_mail_receipt_aws', 'return_receipt_file_aws','hash','uuid'
         ]
         extra_kwargs = {
+            'created_by': {'read_only': True},
             'pdf_file': {'required': False, 'allow_null': True},
             'tracking_mail_receipt': {'required': False, 'allow_null': True},
             'return_receipt_file': {'required': False, 'allow_null': True},
+            'tracking_mail_receipt_aws': {'required': False, 'allow_null': True},
+            'return_receipt_file_aws': {'required': False, 'allow_null': True},
             
         }
