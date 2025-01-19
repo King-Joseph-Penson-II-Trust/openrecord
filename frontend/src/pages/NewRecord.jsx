@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import api from '../api';
 
@@ -17,12 +17,13 @@ const NewRecord = () => {
     zip: '',
     email: '',
     phone_number: '',
-    pdf_file: null,
-    tracking_mail_receipt: null,
-    return_receipt_file: null,
+    pdf_file_aws: null,
+    tracking_mail_receipt_aws: null,
+    return_receipt_file_aws: null,
   });
 
   const [errors, setErrors] = useState({});
+  const formRef = useRef(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,6 +47,7 @@ const NewRecord = () => {
     for (const key in formData) {
       form.append(key, formData[key]);
     }
+    console.log('Form data before submission:', formData);
     try {
       const response = await api.post('/api/records/', form, {
         headers: {
@@ -53,6 +55,26 @@ const NewRecord = () => {
         },
       });
       console.log('Record created:', response.data);
+      setErrors({});
+      formRef.current.reset(); // Reset the form
+      setFormData({
+        tracking_number: '',
+        return_receipt: '',
+        status: '',
+        record_type: '',
+        company_name: '',
+        ceo: '',
+        cfo: '',
+        mailing_address: '',
+        city: '',
+        state: '',
+        zip: '',
+        email: '',
+        phone_number: '',
+        pdf_file_aws: null,
+        tracking_mail_receipt_aws: null,
+        return_receipt_file_aws: null,
+      });
     } catch (error) {
       console.error('Error creating record:', error);
       setErrors(error.response.data);
@@ -62,7 +84,7 @@ const NewRecord = () => {
   return (
     <div className="container mt-4">
       <h2>Create New Record</h2>
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit} ref={formRef}>
         <Row>
           <Col md={6}>
             <Form.Group controlId="formTrackingNumber">
@@ -74,7 +96,7 @@ const NewRecord = () => {
                 value={formData.tracking_number}
                 onChange={handleChange}
               />
-              {errors.tracking_number && <p>{errors.tracking_number}</p>}
+              {errors.tracking_number && <p className="text-danger">{errors.tracking_number}</p>}
             </Form.Group>
 
             <Form.Group controlId="formReturnReceipt">
@@ -86,7 +108,7 @@ const NewRecord = () => {
                 value={formData.return_receipt}
                 onChange={handleChange}
               />
-              {errors.return_receipt && <p>{errors.return_receipt}</p>}
+              {errors.return_receipt && <p className="text-danger">{errors.return_receipt}</p>}
             </Form.Group>
 
             <Form.Group controlId="formStatus">
@@ -102,7 +124,7 @@ const NewRecord = () => {
                 <option value="delivered">Delivered</option>
                 <option value="confirmation">Confirmation</option>
               </Form.Control>
-              {errors.status && <p>{errors.status}</p>}
+              {errors.status && <p className="text-danger">{errors.status}</p>}
             </Form.Group>
 
             <Form.Group controlId="formRecordType">
@@ -127,7 +149,7 @@ const NewRecord = () => {
                 <option value="executor">Executor Letter</option>
                 <option value="crn">Copyright Notice</option>
               </Form.Control>
-              {errors.record_type && <p>{errors.record_type}</p>}
+              {errors.record_type && <p className="text-danger">{errors.record_type}</p>}
             </Form.Group>
 
             <Form.Group controlId="formCompanyName">
@@ -139,7 +161,7 @@ const NewRecord = () => {
                 value={formData.company_name}
                 onChange={handleChange}
               />
-              {errors.company_name && <p>{errors.company_name}</p>}
+              {errors.company_name && <p className="text-danger">{errors.company_name}</p>}
             </Form.Group>
 
             <Form.Group controlId="formCeo">
@@ -151,7 +173,7 @@ const NewRecord = () => {
                 value={formData.ceo}
                 onChange={handleChange}
               />
-              {errors.ceo && <p>{errors.ceo}</p>}
+              {errors.ceo && <p className="text-danger">{errors.ceo}</p>}
             </Form.Group>
 
             <Form.Group controlId="formCfo">
@@ -163,7 +185,7 @@ const NewRecord = () => {
                 value={formData.cfo}
                 onChange={handleChange}
               />
-              {errors.cfo && <p>{errors.cfo}</p>}
+              {errors.cfo && <p className="text-danger">{errors.cfo}</p>}
             </Form.Group>
           </Col>
 
@@ -177,7 +199,7 @@ const NewRecord = () => {
                 value={formData.mailing_address}
                 onChange={handleChange}
               />
-              {errors.mailing_address && <p>{errors.mailing_address}</p>}
+              {errors.mailing_address && <p className="text-danger">{errors.mailing_address}</p>}
             </Form.Group>
 
             <Form.Group controlId="formCity">
@@ -189,7 +211,7 @@ const NewRecord = () => {
                 value={formData.city}
                 onChange={handleChange}
               />
-              {errors.city && <p>{errors.city}</p>}
+              {errors.city && <p className="text-danger">{errors.city}</p>}
             </Form.Group>
 
             <Form.Group controlId="formState">
@@ -201,7 +223,7 @@ const NewRecord = () => {
                 value={formData.state}
                 onChange={handleChange}
               />
-              {errors.state && <p>{errors.state}</p>}
+              {errors.state && <p className="text-danger">{errors.state}</p>}
             </Form.Group>
 
             <Form.Group controlId="formZip">
@@ -213,7 +235,7 @@ const NewRecord = () => {
                 value={formData.zip}
                 onChange={handleChange}
               />
-              {errors.zip && <p>{errors.zip}</p>}
+              {errors.zip && <p className="text-danger">{errors.zip}</p>}
             </Form.Group>
 
             <Form.Group controlId="formEmail">
@@ -225,7 +247,7 @@ const NewRecord = () => {
                 value={formData.email}
                 onChange={handleChange}
               />
-              {errors.email && <p>{errors.email}</p>}
+              {errors.email && <p className="text-danger">{errors.email}</p>}
             </Form.Group>
 
             <Form.Group controlId="formPhoneNumber">
@@ -237,37 +259,37 @@ const NewRecord = () => {
                 value={formData.phone_number}
                 onChange={handleChange}
               />
-              {errors.phone_number && <p>{errors.phone_number}</p>}
+              {errors.phone_number && <p className="text-danger">{errors.phone_number}</p>}
             </Form.Group>
 
             <Form.Group controlId="formPdfFile">
               <Form.Label>PDF File</Form.Label>
               <Form.Control
                 type="file"
-                name="pdf_file"
+                name="pdf_file_aws"
                 onChange={handleFileChange}
               />
-              {errors.pdf_file && <p>{errors.pdf_file}</p>}
+              {errors.pdf_file_aws && <p className="text-danger">{errors.pdf_file_aws}</p>}
             </Form.Group>
 
             <Form.Group controlId="formTrackingMailReceipt">
               <Form.Label>Tracking Mail Receipt</Form.Label>
               <Form.Control
                 type="file"
-                name="tracking_mail_receipt"
+                name="tracking_mail_receipt_aws"
                 onChange={handleFileChange}
               />
-              {errors.tracking_mail_receipt && <p>{errors.tracking_mail_receipt}</p>}
+              {errors.tracking_mail_receipt_aws && <p className="text-danger">{errors.tracking_mail_receipt_aws}</p>}
             </Form.Group>
 
             <Form.Group controlId="formReturnReceiptFile">
               <Form.Label>Return Receipt File</Form.Label>
               <Form.Control
                 type="file"
-                name="return_receipt_file"
+                name="return_receipt_file_aws"
                 onChange={handleFileChange}
               />
-              {errors.return_receipt_file && <p>{errors.return_receipt_file}</p>}
+              {errors.return_receipt_file_aws && <p className="text-danger">{errors.return_receipt_file_aws}</p>}
             </Form.Group>
           </Col>
         </Row>
