@@ -26,7 +26,7 @@ def upload_to(instance, filename):
 def upload_tracking_mail_receipt(instance, filename):
     base, extension = os.path.splitext(filename)
     new_filename = f"{slugify(instance.title)}-tracking-mail-receipt{extension}"
-    return os.path.join('tracking_mail_receipt_awss/', new_filename)
+    return os.path.join('tracking_mail_receipt_aws/', new_filename)
 
 def upload_return_receipt(instance, filename):
     base, extension = os.path.splitext(filename)
@@ -103,13 +103,7 @@ class Record(models.Model):
         # Generate the hash if a PDF file is uploaded
         if self.pdf_file_aws:
             self.hash = self.generate_hash(self.pdf_file_aws)
-            self.pdf_file_url = self.pdf_file_aws.url
-
-        if self.tracking_mail_receipt_aws:
-            self.tracking_mail_receipt_aws = self.tracking_mail_receipt_aws.url
-
-        if self.return_receipt_file_aws:
-            self.return_receipt_file_url = self.return_receipt_file_aws.url
+        
         super().save(*args, **kwargs)
     
 
