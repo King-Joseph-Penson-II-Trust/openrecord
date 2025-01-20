@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Modal, Button, Form } from 'react-bootstrap';
 import api from '../api';
 
 const RecordSearch = () => {
@@ -9,6 +10,7 @@ const RecordSearch = () => {
 
   const [results, setResults] = useState([]);
   const [errors, setErrors] = useState({});
+  const [showModal, setShowModal] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,59 +31,101 @@ const RecordSearch = () => {
       });
       setResults(response.data);
       setErrors({});
+      setShowModal(true); // Show the modal with the search results
     } catch (error) {
       if (error.response && error.response.data) {
         setErrors(error.response.data);
-        alert('Error searching records: ' + error.response.data.detail);
-      } else {
-        console.error('Error searching records:', error);
-        alert('Error searching records');
       }
     }
   };
 
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
   return (
     <div>
-      <h2>Search Records</h2>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Tracking Number:
-          <input
+      <Form onSubmit={handleSubmit}>
+        <Form.Group controlId="formTrackingNumber">
+          <Form.Label>Tracking Number</Form.Label>
+          <Form.Control
             type="text"
             name="tracking_number"
-            placeholder="Tracking Number"
             value={formData.tracking_number}
             onChange={handleChange}
           />
-        </label>
-        {errors.tracking_number && <p>{errors.tracking_number}</p>}
-        
-        <label>
-          Return Receipt:
-          <input
+          {errors.tracking_number && <p className="text-danger">{errors.tracking_number}</p>}
+        </Form.Group>
+        <Form.Group controlId="formReturnReceipt">
+          <Form.Label>Return Receipt</Form.Label>
+          <Form.Control
             type="text"
             name="return_receipt"
-            placeholder="Return Receipt"
             value={formData.return_receipt}
             onChange={handleChange}
           />
-        </label>
-        {errors.return_receipt && <p>{errors.return_receipt}</p>}
-        
-        <button type="submit">Search</button>
-      </form>
-      
-      <h3>Search Results</h3>
-      <ul>
-        {results.map((record) => (
-          <li key={record.id}>
-            <h4>{record.title}</h4>
-            <iframe src={record.pdf_file_aws} title="PDF File" width="300" height="200"></iframe>
-            <iframe src={record.tracking_mail_receipt_aws} title="Tracking Mail Receipt" width="300" height="200"></iframe>
-            <iframe src={record.return_receipt_file_aws} title="Return Receipt File" width="300" height="200"></iframe>
-          </li>
-        ))}
-      </ul>
+          {errors.return_receipt && <p className="text-danger">{errors.return_receipt}</p>}
+        </Form.Group>
+        <Button variant="primary" type="submit">
+          Search
+        </Button>
+      </Form>
+
+      <Modal show={showModal} onHide={handleCloseModal} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Search Results</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {results.length > 0 ? (
+            results.map((result) => (
+              <div key={result.id}>
+                <h5>{result.title}</h5>
+                {result.pdf_file_aws && (
+                  <>
+                    <h6>PDF File</h6>
+                    <iframe
+                      src={result.pdf_file_aws}
+                      title="PDF File"
+                      width="100%"
+                      height="400px"
+                    />
+                  </>
+                )}
+                {result.tracking_mail_receipt_aws && (
+                  <>
+                    <h6>Tracking Mail Receipt</h6>
+                    <iframe
+                      src={result.tracking_mail_receipt_aws}
+                      title="Tracking Mail Receipt"
+                      width="100%"
+                      height="400px"
+                    />
+                  </>
+                )}
+                {result.return_receipt_file_aws && (
+                  <>
+                    <h6>Return Receipt File</h6>
+                    <iframe
+                      src={result.return_receipt_file_aws}
+                      title="Return Receipt File"
+                      width="100%"
+                      height="400px"
+                    />
+                  </>
+                )}
+                <hr />
+              </div>
+            ))
+          ) : (
+            <p>No results found.</p>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
