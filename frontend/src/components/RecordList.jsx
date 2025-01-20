@@ -75,9 +75,11 @@ const RecordList = () => {
     });
   };
 
-  const handleSaveEdit = async () => {
+  const handleFieldUpdate = async (fieldName) => {
+    const updatedField = { [fieldName]: editFormData[fieldName] };
+
     try {
-      const response = await api.put(`/api/records/${editingRecordId}/`, editFormData, {
+      const response = await api.patch(`/api/records/${editingRecordId}/`, updatedField, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -87,10 +89,8 @@ const RecordList = () => {
           record.id === editingRecordId ? response.data : record
         )
       );
-      setEditingRecordId(null);
-      setEditFormData({});
     } catch (error) {
-      console.error('Error saving record:', error);
+      console.error(`Error updating ${fieldName}:`, error);
     }
   };
 
@@ -154,6 +154,9 @@ const RecordList = () => {
                           value={editFormData.title}
                           onChange={handleInputChange}
                         />
+                        <Button variant="primary" onClick={() => handleFieldUpdate('title')}>
+                          Update Title
+                        </Button>
                       </Form.Group>
                       <Form.Group controlId="formTrackingNumber">
                         <Form.Label>Tracking Number</Form.Label>
@@ -163,6 +166,9 @@ const RecordList = () => {
                           value={editFormData.tracking_number}
                           onChange={handleInputChange}
                         />
+                        <Button variant="primary" onClick={() => handleFieldUpdate('tracking_number')}>
+                          Update Tracking Number
+                        </Button>
                       </Form.Group>
                       <Form.Group controlId="formReturnReceipt">
                         <Form.Label>Return Receipt</Form.Label>
@@ -172,6 +178,9 @@ const RecordList = () => {
                           value={editFormData.return_receipt}
                           onChange={handleInputChange}
                         />
+                        <Button variant="primary" onClick={() => handleFieldUpdate('return_receipt')}>
+                          Update Return Receipt
+                        </Button>
                       </Form.Group>
                       <Form.Group controlId="formRecordType">
                         <Form.Label>Record Type</Form.Label>
@@ -181,6 +190,9 @@ const RecordList = () => {
                           value={editFormData.record_type}
                           onChange={handleInputChange}
                         />
+                        <Button variant="primary" onClick={() => handleFieldUpdate('record_type')}>
+                          Update Record Type
+                        </Button>
                       </Form.Group>
                       <Form.Group controlId="formTrackingType">
                         <Form.Label>Tracking Type</Form.Label>
@@ -190,6 +202,9 @@ const RecordList = () => {
                           value={editFormData.tracking_type}
                           onChange={handleInputChange}
                         />
+                        <Button variant="primary" onClick={() => handleFieldUpdate('tracking_type')}>
+                          Update Tracking Type
+                        </Button>
                       </Form.Group>
                       <Form.Group controlId="formStatus">
                         <Form.Label>Status</Form.Label>
@@ -203,6 +218,9 @@ const RecordList = () => {
                           <option value="delivered">Delivered</option>
                           <option value="confirmation">Confirmation</option>
                         </Form.Control>
+                        <Button variant="primary" onClick={() => handleFieldUpdate('status')}>
+                          Update Status
+                        </Button>
                       </Form.Group>
                       <Form.Group controlId="formCompanyName">
                         <Form.Label>Company Name</Form.Label>
@@ -212,6 +230,9 @@ const RecordList = () => {
                           value={editFormData.company_name}
                           onChange={handleInputChange}
                         />
+                        <Button variant="primary" onClick={() => handleFieldUpdate('company_name')}>
+                          Update Company Name
+                        </Button>
                       </Form.Group>
                       <Form.Group controlId="formCeo">
                         <Form.Label>CEO</Form.Label>
@@ -221,6 +242,9 @@ const RecordList = () => {
                           value={editFormData.ceo}
                           onChange={handleInputChange}
                         />
+                        <Button variant="primary" onClick={() => handleFieldUpdate('ceo')}>
+                          Update CEO
+                        </Button>
                       </Form.Group>
                       <Form.Group controlId="formCfo">
                         <Form.Label>CFO</Form.Label>
@@ -230,6 +254,9 @@ const RecordList = () => {
                           value={editFormData.cfo}
                           onChange={handleInputChange}
                         />
+                        <Button variant="primary" onClick={() => handleFieldUpdate('cfo')}>
+                          Update CFO
+                        </Button>
                       </Form.Group>
                       <Form.Group controlId="formMailingAddress">
                         <Form.Label>Mailing Address</Form.Label>
@@ -239,6 +266,9 @@ const RecordList = () => {
                           value={editFormData.mailing_address}
                           onChange={handleInputChange}
                         />
+                        <Button variant="primary" onClick={() => handleFieldUpdate('mailing_address')}>
+                          Update Mailing Address
+                        </Button>
                       </Form.Group>
                       <Form.Group controlId="formCity">
                         <Form.Label>City</Form.Label>
@@ -248,6 +278,9 @@ const RecordList = () => {
                           value={editFormData.city}
                           onChange={handleInputChange}
                         />
+                        <Button variant="primary" onClick={() => handleFieldUpdate('city')}>
+                          Update City
+                        </Button>
                       </Form.Group>
                       <Form.Group controlId="formState">
                         <Form.Label>State</Form.Label>
@@ -257,6 +290,9 @@ const RecordList = () => {
                           value={editFormData.state}
                           onChange={handleInputChange}
                         />
+                        <Button variant="primary" onClick={() => handleFieldUpdate('state')}>
+                          Update State
+                        </Button>
                       </Form.Group>
                       <Form.Group controlId="formZip">
                         <Form.Label>ZIP Code</Form.Label>
@@ -266,6 +302,9 @@ const RecordList = () => {
                           value={editFormData.zip}
                           onChange={handleInputChange}
                         />
+                        <Button variant="primary" onClick={() => handleFieldUpdate('zip')}>
+                          Update ZIP Code
+                        </Button>
                       </Form.Group>
                       <Form.Group controlId="formEmail">
                         <Form.Label>Email</Form.Label>
@@ -275,6 +314,9 @@ const RecordList = () => {
                           value={editFormData.email}
                           onChange={handleInputChange}
                         />
+                        <Button variant="primary" onClick={() => handleFieldUpdate('email')}>
+                          Update Email
+                        </Button>
                       </Form.Group>
                       <Form.Group controlId="formPhoneNumber">
                         <Form.Label>Phone Number</Form.Label>
@@ -284,6 +326,9 @@ const RecordList = () => {
                           value={editFormData.phone_number}
                           onChange={handleInputChange}
                         />
+                        <Button variant="primary" onClick={() => handleFieldUpdate('phone_number')}>
+                          Update Phone Number
+                        </Button>
                       </Form.Group>
                       <Form.Group controlId="formPdfFile">
                         <Form.Label>PDF File</Form.Label>
@@ -318,9 +363,6 @@ const RecordList = () => {
                           Upload Return Receipt
                         </Button>
                       </Form.Group>
-                      <Button variant="primary" onClick={handleSaveEdit}>
-                        Save
-                      </Button>
                       <Button variant="secondary" onClick={handleCancelEdit} className="ml-2">
                         Cancel
                       </Button>

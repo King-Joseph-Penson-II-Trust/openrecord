@@ -36,8 +36,6 @@ class NoteDelete(generics.DestroyAPIView):
         user = self.request.user
         return Note.objects.filter(author=user)
 
-
-
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -48,10 +46,30 @@ class RecordListCreate(generics.ListCreateAPIView):
     serializer_class = RecordSerializer
     permission_classes = [AllowAny]
 
+    def get_queryset(self):
+        user = self.request.user
+        return Record.objects.filter(created_by=user)
+    
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            serializer.save(created_by=self.request.user)
+        else:
+            print(serializer.errors)
+
 class RecordDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
     queryset = Record.objects.all()
     serializer_class = RecordSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Record.objects.filter(created_by=user)
+    
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            serializer.save(created_by=self.request.user)
+        else:
+            print(serializer.errors)
 
 class RecordListView(generics.ListAPIView):
     queryset = Record.objects.all()
