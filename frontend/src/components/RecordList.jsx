@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api';
 import { Card, Button, Collapse, Row, Col, Form } from 'react-bootstrap';
+import '../styles/RecordList.css'; // Import the CSS file
 
 const RecordList = () => {
   const [records, setRecords] = useState([]);
@@ -18,7 +19,8 @@ const RecordList = () => {
     const fetchRecords = async () => {
       try {
         const response = await api.get('/api/records/list/');
-        setRecords(response.data);
+        const sortedRecords = response.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        setRecords(sortedRecords);
       } catch (error) {
         console.error('Error fetching records:', error);
       }
@@ -124,7 +126,7 @@ const RecordList = () => {
           <h2>Record List</h2>
           {records.map((record) => (
             <Card key={record.id} className="mb-3">
-              <Card.Header>
+              <Card.Header className="d-flex justify-content-between align-items-center">
                 <Button
                   variant="link"
                   onClick={() => toggleCollapse(record.id)}
@@ -135,7 +137,6 @@ const RecordList = () => {
                 </Button>
                 <Button
                   variant="outline-primary"
-                  className="ml-2"
                   onClick={() => handleEditClick(record)}
                 >
                   {editingRecordId === record.id ? 'Close' : 'Edit'}
@@ -358,8 +359,7 @@ const RecordList = () => {
             <iframe
               src={iframeSrc}
               title="Document Viewer"
-              width="100%"
-              height="600px"
+              className="fixed-iframe"
             />
           )}
         </Col>
