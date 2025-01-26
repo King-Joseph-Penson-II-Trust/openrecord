@@ -20,13 +20,26 @@ const RecordSearch = () => {
     });
   };
 
+  const sanitizeInput = (input) => {
+    const pattern = /[^\w\s-]/g; // Allow only alphanumeric characters, spaces, and hyphens
+    return input.replace(pattern, '');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const sanitizedTrackingNumber = sanitizeInput(formData.tracking_number);
+    const sanitizedReturnReceipt = sanitizeInput(formData.return_receipt);
+
+    if (!sanitizedTrackingNumber && !sanitizedReturnReceipt) {
+      setErrors({ form: 'Please enter a tracking number or return receipt.' });
+      return;
+    }
+
     try {
       const response = await api.get('/api/records/search/', {
         params: {
-          tracking_number: formData.tracking_number,
-          return_receipt: formData.return_receipt,
+          tracking_number: sanitizedTrackingNumber,
+          return_receipt: sanitizedReturnReceipt,
         },
       });
       setResults(response.data);
@@ -66,6 +79,7 @@ const RecordSearch = () => {
           />
           {errors.return_receipt && <p className="text-danger">{errors.return_receipt}</p>}
         </Form.Group>
+        {errors.form && <p className="text-danger">{errors.form}</p>}
         <Button variant="primary" type="submit">
           Search
         </Button>
