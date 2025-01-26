@@ -9,6 +9,7 @@ from django.conf import settings
 from urllib.parse import urljoin, urlparse, urlunparse
 
 
+
 class Note(models.Model):
     title = models.CharField(max_length=100)
     content = models.TextField()
@@ -88,6 +89,7 @@ class Record(models.Model):
     tracking_mail_receipt_aws = models.FileField(storage=S3Boto3Storage(bucket_name='omnistance-openrecord-tracking'), upload_to=upload_tracking_mail_receipt, blank=True, null=True, verbose_name="Tracking Mail Receipt")
     return_receipt_file_aws = models.FileField(storage=S3Boto3Storage(bucket_name='omnistance-openrecord-greencards'), upload_to=upload_return_receipt, blank=True, null=True, verbose_name="Return Receipt File")
     hash = models.CharField(max_length=64, blank=True, null=True, editable=False, verbose_name="SHA256")
+    access_logs = models.JSONField(default=list, verbose_name="Access Logs")  # Array of objects for access logs
     
 
     def generate_hash(self, file):

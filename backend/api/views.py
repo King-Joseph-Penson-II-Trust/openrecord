@@ -10,6 +10,8 @@ from rest_framework.parsers import JSONParser
 from .models import Note, Record
 from uuid import UUID
 import logging
+from django.utils import timezone
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -44,17 +46,14 @@ class CreateUserView(generics.CreateAPIView):
 class RecordListCreate(generics.ListCreateAPIView):
     queryset = Record.objects.all()
     serializer_class = RecordSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
         return Record.objects.filter(created_by=user)
     
     def perform_create(self, serializer):
-        if serializer.is_valid():
-            serializer.save(created_by=self.request.user)
-        else:
-            print(serializer.errors)
+        serializer.save(created_by=self.request.user)
 
 class RecordDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
     queryset = Record.objects.all()
@@ -65,11 +64,8 @@ class RecordDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
         user = self.request.user
         return Record.objects.filter(created_by=user)
     
-    def perform_create(self, serializer):
-        if serializer.is_valid():
-            serializer.save(created_by=self.request.user)
-        else:
-            print(serializer.errors)
+    def perform_update(self, serializer):
+        serializer.save()
 
 class RecordListView(generics.ListAPIView):
     queryset = Record.objects.all()
@@ -81,42 +77,41 @@ class RecordView(generics.RetrieveAPIView):
     serializer_class = RecordSerializer
     permission_classes = [AllowAny]
 
-class RecordSearchView(APIView):
+class RecordSearchView(generics.ListAPIView):
     serializer_class = RecordSerializer
     permission_classes = [AllowAny]
 
-    def get(self, request, *args, **kwargs):
-        tracking_number = request.query_params.get('tracking_number', None)
-        return_receipt = request.query_params.get('return_receipt', None)
-        company_name = request.query_params.get('company_name', None)
-        ceo = request.query_params.get('ceo', None)
-        cfo = request.query_params.get('cfo', None)
-        hash_value = request.query_params.get('hash', None)
+    def get_queryset(self):
+        tracking_number = self.request.query_params.get('tracking_number', None)
+        return_receipt = self.request.query_params.get('return_receipt', None)
+        queryset = Record.objects.all()
 
-        print(f"Tracking Number: {tracking_number}")
-        print(f"Return Receipt: {return_receipt}")
-        print(f"Company Name: {company_name}")
-        print(f"CEO: {ceo}")
-        print(f"CFO: {cfo}")
-        print(f"Hash: {hash_value}")
-
-        # All users can search by limited criteria
-        records = Record.objects.all()
         if tracking_number:
-            records = records.filter(tracking_number=tracking_number)
+            queryset = queryset.filter(tracking_number=tracking_number)
         if return_receipt:
-            records = records.filter(return_receipt=return_receipt)
-        if company_name:
-            records = records.filter(company_name=company_name)
-        if ceo:
-            records = records.filter(ceo=ceo)
-        if cfo:
-            records = records.filter(cfo=cfo)
-        if hash_value:
-            records = records.filter(hash=hash_value)
+            queryset = queryset.filter(return_receipt=return_receipt)
 
-        if not records.exists():
-            return Response({"error": "No records found"}, status=status.HTTP_404_NOT_FOUND)
+        return queryset
 
-        serializer = RecordSerializer(records, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        response = super().list(request, *args, **kwargs)
+
+        for record in queryset:
+            access_log = {
+                'ip_address': request.META.get('REMOTE_ADDR'),
+                'timestamp': timezone.now().isoformat(),
+                'user_agent': request.META.get('HTTP_USER_AGENT'),
+                'location': self.get_location(request.META.get('REMOTE_ADDR')),
+            }
+            record.access_logs.append(access_log)
+            record.save()
+
+        return response
+
+    def get_location(self, ip_address):
+        try:
+            response = requests.get(f'https://ipinfo.io/{ip_address}/json')
+            return response.json()
+        except requests.RequestException:
+            return {}

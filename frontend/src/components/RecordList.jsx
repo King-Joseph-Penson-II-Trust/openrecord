@@ -476,9 +476,30 @@ const RecordList = () => {
                       <p><strong>Tracking Mail Receipt:</strong> <Button variant="link" onClick={() => handleViewFile(record.tracking_mail_receipt_aws)}>View Receipt</Button></p>
                       <p><strong>Return Receipt File:</strong> <Button variant="link" onClick={() => handleViewFile(record.return_receipt_file_aws)}>View Return Receipt</Button></p>
                       <p><strong>Hash:</strong> {record.hash}</p>
+                      
+                      {record.access_logs && record.access_logs.length > 0 && (
+                        <div>
+                          <h6>Access Logs</h6>
+                          <div style={{ maxHeight: '200px', overflowY: 'scroll' }}>
+                            <ul>
+                              {record.access_logs.map((log, index) => (
+                                <li key={index}>
+                                  <strong>IP Address:</strong> {log.ip_address}, 
+                                  <strong> Timestamp:</strong> {log.timestamp}, 
+                                  <strong> User Agent:</strong> {log.user_agent}, 
+                                  <strong> Location:</strong> {log.location.city}, {log.location.region}, {log.location.country}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      )}
+                      
                     </div>
                   )}
+                  
                 </div>
+
               </Collapse>
             </Card>
           ))}
