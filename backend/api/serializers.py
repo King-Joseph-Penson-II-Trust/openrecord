@@ -27,11 +27,28 @@ class RecordSerializer(serializers.ModelSerializer):
         model = Record
         fields = [
             'id', 'title', 'tracking_number', 'return_receipt', 'record_type', 'tracking_type', 'status', 'company_name', 'ceo',
-            'cfo', 'mailing_address', 'city', 'state', 'zip', 'email', 'phone_number', 'created_by', 'created_at', 'updated_at', 'is_deleted', 'pdf_file_aws', 'tracking_mail_receipt_aws', 'return_receipt_file_aws', 'hash', 'uuid',
+            'cfo', 'mailing_address', 'city', 'state', 'zip', 'email', 'phone_number', 'created_by', 'created_at', 'updated_at', 'pdf_file_aws', 'tracking_mail_receipt_aws', 'return_receipt_file_aws', 'hash', 'uuid',
         ]
         extra_kwargs = {
-            'created_by': {'read_only': True},
+            'tracking_number': {'required': True},
+            'return_receipt': {'required': False},
+            'record_type': {'required': False},
+            'tracking_type': {'required': False},
+            'status': {'required': False},
+            'company_name': {'required': False},
+            'ceo': {'required': False},
+            'cfo': {'required': False},
+            'mailing_address': {'required': False},
+            'city': {'required': False},
+            'state': {'required': False},
+            'zip': {'required': False},
+            'email': {'required': False},
+            'phone_number': {'required': False},
             'pdf_file_aws': {'required': False},
             'tracking_mail_receipt_aws': {'required': False},
             'return_receipt_file_aws': {'required': False},
+            'created_by': {'required': False},
+            'created_at': {'required': False},
+            'updated_at': {'required': False},
+            'hash': {'required': False},
         }

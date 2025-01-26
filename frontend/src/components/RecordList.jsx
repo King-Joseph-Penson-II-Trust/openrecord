@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api';
-import { Card, Button, Collapse, Row, Col, Form } from 'react-bootstrap';
+import { Card, Button, Collapse, Row, Col, Form, Alert } from 'react-bootstrap';
 import '../styles/RecordList.css'; // Import the CSS file
 
 const RecordList = () => {
   const [records, setRecords] = useState([]);
+  const [filteredRecords, setFilteredRecords] = useState([]);
   const [open, setOpen] = useState({});
   const [iframeSrc, setIframeSrc] = useState('');
   const [editingRecordId, setEditingRecordId] = useState(null);
@@ -14,6 +15,8 @@ const RecordList = () => {
     tracking_mail_receipt_aws: null,
     return_receipt_file_aws: null,
   });
+  const [alert, setAlert] = useState({ show: false, message: '', variant: '' });
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchRecords = async () => {
@@ -21,6 +24,7 @@ const RecordList = () => {
         const response = await api.get('/api/records/list/');
         const sortedRecords = response.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         setRecords(sortedRecords);
+        setFilteredRecords(sortedRecords);
       } catch (error) {
         console.error('Error fetching records:', error);
       }
@@ -89,8 +93,15 @@ const RecordList = () => {
           record.id === editingRecordId ? response.data : record
         )
       );
+      setFilteredRecords((prevRecords) =>
+        prevRecords.map((record) =>
+          record.id === editingRecordId ? response.data : record
+        )
+      );
+      setAlert({ show: true, message: `${fieldName} updated successfully!`, variant: 'success' });
     } catch (error) {
       console.error(`Error updating ${fieldName}:`, error);
+      setAlert({ show: true, message: `Error updating ${fieldName}`, variant: 'danger' });
     }
   };
 
@@ -109,22 +120,76 @@ const RecordList = () => {
           record.id === editingRecordId ? response.data : record
         )
       );
+      setFilteredRecords((prevRecords) =>
+        prevRecords.map((record) =>
+          record.id === editingRecordId ? response.data : record
+        )
+      );
       setFileData({
         pdf_file_aws: null,
         tracking_mail_receipt_aws: null,
         return_receipt_file_aws: null,
       });
+      setAlert({ show: true, message: `${fieldName} uploaded successfully!`, variant: 'success' });
     } catch (error) {
       console.error(`Error uploading ${fieldName}:`, error);
+      setAlert({ show: true, message: `Error uploading ${fieldName}`, variant: 'danger' });
     }
+  };
+
+  const handleDeleteRecord = async () => {
+    try {
+      await api.delete(`/api/records/${editingRecordId}/`);
+      setRecords((prevRecords) =>
+        prevRecords.filter((record) => record.id !== editingRecordId)
+      );
+      setFilteredRecords((prevRecords) =>
+        prevRecords.filter((record) => record.id !== editingRecordId)
+      );
+      setEditingRecordId(null);
+      setEditFormData({});
+      setAlert({ show: true, message: 'Record deleted successfully!', variant: 'success' });
+    } catch (error) {
+      console.error('Error deleting record:', error);
+      setAlert({ show: true, message: 'Error deleting record', variant: 'danger' });
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    const { value } = e.target;
+    setSearchTerm(value);
+    const filtered = records.filter((record) =>
+      Object.values(record).some((field) =>
+        field && field.toString().toLowerCase().includes(value.toLowerCase())
+      )
+    );
+    setFilteredRecords(filtered);
   };
 
   return (
     <div className="container mt-4">
+      {alert.show && (
+        <Alert
+          variant={alert.variant}
+          onClose={() => setAlert({ show: false, message: '', variant: '' })}
+          dismissible
+          className="fixed-top"
+        >
+          {alert.message}
+        </Alert>
+      )}
       <Row>
         <Col md={6}>
           <h2>Record List</h2>
-          {records.map((record) => (
+          <Form.Group controlId="formSearch">
+            <Form.Control
+              type="text"
+              placeholder="Search records..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
+          </Form.Group>
+          {filteredRecords.map((record) => (
             <Card key={record.id} className="mb-3">
               <Card.Header className="d-flex justify-content-between align-items-center">
                 <Button
@@ -185,11 +250,25 @@ const RecordList = () => {
                       <Form.Group controlId="formRecordType">
                         <Form.Label>Record Type</Form.Label>
                         <Form.Control
-                          type="text"
+                          as="select"
                           name="record_type"
                           value={editFormData.record_type}
                           onChange={handleInputChange}
-                        />
+                        >
+                          <option value="">Select Record Type</option>
+                          <option value="cafv">Conditional-Acceptance-for-Value</option>
+                          <option value="ipn">International-Promissory-Note</option>
+                          <option value="boe">International-Bill-of-Exchange</option>
+                          <option value="noticeBreach">Notice-of-Breach</option>
+                          <option value="noticeCure">Notice-of-Cure</option>
+                          <option value="noticeDefault">Notice-of-Default</option>
+                          <option value="tort">Tort-Claim</option>
+                          <option value="noticeDemand">Notice-of-Demand</option>
+                          <option value="noticeDispute">Notice-of-Dispute</option>
+                          <option value="noticeFraud">Notice-of-Fraud</option>
+                          <option value="executor">Executor-Letter</option>
+                          <option value="crn">Copyright-Notice</option>
+                        </Form.Control>
                         <Button variant="primary" onClick={() => handleFieldUpdate('record_type')}>
                           Update Record Type
                         </Button>
@@ -197,11 +276,15 @@ const RecordList = () => {
                       <Form.Group controlId="formTrackingType">
                         <Form.Label>Tracking Type</Form.Label>
                         <Form.Control
-                          type="text"
+                          as="select"
                           name="tracking_type"
                           value={editFormData.tracking_type}
                           onChange={handleInputChange}
-                        />
+                        >
+                          <option value="">Select Tracking Type</option>
+                          <option value="certifiedmail_usps">Certified-Mail-USPS</option>
+                          <option value="registeredmail_usps">Registered-Mail-USPS</option>
+                        </Form.Control>
                         <Button variant="primary" onClick={() => handleFieldUpdate('tracking_type')}>
                           Update Tracking Type
                         </Button>
@@ -214,6 +297,7 @@ const RecordList = () => {
                           value={editFormData.status}
                           onChange={handleInputChange}
                         >
+                          <option value="">Select Status</option>
                           <option value="pending">Pending</option>
                           <option value="delivered">Delivered</option>
                           <option value="confirmation">Confirmation</option>
@@ -363,6 +447,9 @@ const RecordList = () => {
                           Upload Return Receipt
                         </Button>
                       </Form.Group>
+                      <Button variant="danger" onClick={handleDeleteRecord}>
+                        Delete Record
+                      </Button>
                       <Button variant="secondary" onClick={handleCancelEdit} className="ml-2">
                         Cancel
                       </Button>

@@ -17,9 +17,7 @@ const NewRecord = () => {
     zip: '',
     email: '',
     phone_number: '',
-    pdf_file_aws: null,
-    tracking_mail_receipt_aws: null,
-    return_receipt_file_aws: null,
+    tracking_type: '',
   });
 
   const [errors, setErrors] = useState({});
@@ -33,66 +31,54 @@ const NewRecord = () => {
     });
   };
 
-  const handleFileChange = (e) => {
-    const { name, files } = e.target;
-    setFormData({
-      ...formData,
-      [name]: files[0],
-    });
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const form = new FormData();
-    for (const key in formData) {
-      form.append(key, formData[key]);
-    }
-    console.log('Form data before submission:', formData);
     try {
-      const response = await api.post('/api/records/', form, {
+      const response = await api.post('/api/records/', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         },
       });
-      console.log('Record created:', response.data);
-      setErrors({});
-      formRef.current.reset(); // Reset the form
-      setFormData({
-        tracking_number: '',
-        return_receipt: '',
-        status: '',
-        record_type: '',
-        company_name: '',
-        ceo: '',
-        cfo: '',
-        mailing_address: '',
-        city: '',
-        state: '',
-        zip: '',
-        email: '',
-        phone_number: '',
-        pdf_file_aws: null,
-        tracking_mail_receipt_aws: null,
-        return_receipt_file_aws: null,
-      });
+      if (response.status === 201) {
+        alert('Record created successfully!');
+        formRef.current.reset();
+        setFormData({
+          tracking_number: '',
+          return_receipt: '',
+          status: '',
+          record_type: '',
+          company_name: '',
+          ceo: '',
+          cfo: '',
+          mailing_address: '',
+          city: '',
+          state: '',
+          zip: '',
+          email: '',
+          phone_number: '',
+          tracking_type: '',
+        });
+        setErrors({});
+      } else {
+        setErrors(response.data);
+      }
     } catch (error) {
-      console.error('Error creating record:', error);
-      setErrors(error.response.data);
+      if (error.response && error.response.data) {
+        setErrors(error.response.data);
+      }
     }
   };
 
   return (
-    <div className="container mt-4">
-      <h2>Create New Record</h2>
+    <div>
       <Form onSubmit={handleSubmit} ref={formRef}>
         <Row>
-          <Col md={6}>
+          <Col>
             <Form.Group controlId="formTrackingNumber">
               <Form.Label>Tracking Number</Form.Label>
               <Form.Control
                 type="text"
                 name="tracking_number"
-                placeholder="Tracking Number"
                 value={formData.tracking_number}
                 onChange={handleChange}
               />
@@ -104,7 +90,6 @@ const NewRecord = () => {
               <Form.Control
                 type="text"
                 name="return_receipt"
-                placeholder="Return Receipt"
                 value={formData.return_receipt}
                 onChange={handleChange}
               />
@@ -136,20 +121,35 @@ const NewRecord = () => {
                 onChange={handleChange}
               >
                 <option value="">Select Record Type</option>
-                <option value="cafv">Conditional Acceptance for Value</option>
-                <option value="ipn">International Promissory Note</option>
-                <option value="boe">International Bill of Exchange</option>
-                <option value="noticeBreach">Notice of Breach</option>
-                <option value="noticeCure">Notice of Cure</option>
-                <option value="noticeDefault">Notice of Default</option>
-                <option value="tort">Tort Claim</option>
-                <option value="noticeDemand">Notice of Demand</option>
-                <option value="noticeDispute">Notice of Dispute</option>
-                <option value="noticeFraud">Notice of Fraud</option>
-                <option value="executor">Executor Letter</option>
-                <option value="crn">Copyright Notice</option>
+                <option value="cafv">Conditional-Acceptance-for-Value</option>
+                <option value="ipn">International-Promissory-Note</option>
+                <option value="boe">International-Bill-of-Exchange</option>
+                <option value="noticeBreach">Notice-of-Breach</option>
+                <option value="noticeCure">Notice-of-Cure</option>
+                <option value="noticeDefault">Notice-of-Default</option>
+                <option value="tort">Tort-Claim</option>
+                <option value="noticeDemand">Notice-of-Demand</option>
+                <option value="noticeDispute">Notice-of-Dispute</option>
+                <option value="noticeFraud">Notice-of-Fraud</option>
+                <option value="executor">Executor-Letter</option>
+                <option value="crn">Copyright-Notice</option>
               </Form.Control>
               {errors.record_type && <p className="text-danger">{errors.record_type}</p>}
+            </Form.Group>
+
+            <Form.Group controlId="formTrackingType">
+              <Form.Label>Tracking Type</Form.Label>
+              <Form.Control
+                as="select"
+                name="tracking_type"
+                value={formData.tracking_type}
+                onChange={handleChange}
+              >
+                <option value="">Select Tracking Type</option>
+                <option value="certifiedmail_usps">Certified-Mail-USPS</option>
+                <option value="registeredmail_usps">Registered-Mail-USPS</option>
+              </Form.Control>
+              {errors.tracking_type && <p className="text-danger">{errors.tracking_type}</p>}
             </Form.Group>
 
             <Form.Group controlId="formCompanyName">
@@ -157,7 +157,6 @@ const NewRecord = () => {
               <Form.Control
                 type="text"
                 name="company_name"
-                placeholder="Company Name"
                 value={formData.company_name}
                 onChange={handleChange}
               />
@@ -169,7 +168,6 @@ const NewRecord = () => {
               <Form.Control
                 type="text"
                 name="ceo"
-                placeholder="CEO"
                 value={formData.ceo}
                 onChange={handleChange}
               />
@@ -181,21 +179,17 @@ const NewRecord = () => {
               <Form.Control
                 type="text"
                 name="cfo"
-                placeholder="CFO"
                 value={formData.cfo}
                 onChange={handleChange}
               />
               {errors.cfo && <p className="text-danger">{errors.cfo}</p>}
             </Form.Group>
-          </Col>
 
-          <Col md={6}>
             <Form.Group controlId="formMailingAddress">
               <Form.Label>Mailing Address</Form.Label>
               <Form.Control
                 type="text"
                 name="mailing_address"
-                placeholder="Mailing Address"
                 value={formData.mailing_address}
                 onChange={handleChange}
               />
@@ -207,7 +201,6 @@ const NewRecord = () => {
               <Form.Control
                 type="text"
                 name="city"
-                placeholder="City"
                 value={formData.city}
                 onChange={handleChange}
               />
@@ -219,7 +212,6 @@ const NewRecord = () => {
               <Form.Control
                 type="text"
                 name="state"
-                placeholder="State"
                 value={formData.state}
                 onChange={handleChange}
               />
@@ -231,7 +223,6 @@ const NewRecord = () => {
               <Form.Control
                 type="text"
                 name="zip"
-                placeholder="ZIP Code"
                 value={formData.zip}
                 onChange={handleChange}
               />
@@ -243,7 +234,6 @@ const NewRecord = () => {
               <Form.Control
                 type="email"
                 name="email"
-                placeholder="Email"
                 value={formData.email}
                 onChange={handleChange}
               />
@@ -255,42 +245,12 @@ const NewRecord = () => {
               <Form.Control
                 type="text"
                 name="phone_number"
-                placeholder="Phone Number"
                 value={formData.phone_number}
                 onChange={handleChange}
               />
               {errors.phone_number && <p className="text-danger">{errors.phone_number}</p>}
             </Form.Group>
 
-            <Form.Group controlId="formPdfFile">
-              <Form.Label>PDF File</Form.Label>
-              <Form.Control
-                type="file"
-                name="pdf_file_aws"
-                onChange={handleFileChange}
-              />
-              {errors.pdf_file_aws && <p className="text-danger">{errors.pdf_file_aws}</p>}
-            </Form.Group>
-
-            <Form.Group controlId="formTrackingMailReceipt">
-              <Form.Label>Tracking Mail Receipt</Form.Label>
-              <Form.Control
-                type="file"
-                name="tracking_mail_receipt_aws"
-                onChange={handleFileChange}
-              />
-              {errors.tracking_mail_receipt_aws && <p className="text-danger">{errors.tracking_mail_receipt_aws}</p>}
-            </Form.Group>
-
-            <Form.Group controlId="formReturnReceiptFile">
-              <Form.Label>Return Receipt File</Form.Label>
-              <Form.Control
-                type="file"
-                name="return_receipt_file_aws"
-                onChange={handleFileChange}
-              />
-              {errors.return_receipt_file_aws && <p className="text-danger">{errors.return_receipt_file_aws}</p>}
-            </Form.Group>
           </Col>
         </Row>
         <Button variant="primary" type="submit">

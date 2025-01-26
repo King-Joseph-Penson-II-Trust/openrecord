@@ -47,6 +47,7 @@ class Record(models.Model):
         ('noticeFraud', 'Notice-of-Fraud'),
         ('executor', 'Executor-Letter'),
         ('crn', 'Copyright-Notice'),
+        ('noticeLien', 'Notice-of-Lien'),
     ]
 
     TRACKING_TYPE_CHOICES = [
