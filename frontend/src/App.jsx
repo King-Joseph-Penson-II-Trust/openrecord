@@ -49,7 +49,7 @@ function App() {
 						</ProtectedRoute>
 					}
 				/>
-				<Route path="/search" element={<RecordSearch />} />
+				<Route path="/" element={<RecordSearch />} />
 				<Route
 					path="/records"
 					element={

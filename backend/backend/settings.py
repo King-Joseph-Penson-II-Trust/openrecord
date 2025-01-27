@@ -15,6 +15,7 @@ from datetime import timedelta
 from dotenv import load_dotenv
 import os
 
+
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -118,18 +119,27 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+DATABASE_SETTINGS = {
+    'ENGINE': os.getenv('DEFAULT_ENGINE'),
+    'NAME': os.getenv('DEFAULT_NAME'),
+    'USER': os.getenv('DEFAULT_USER'),
+    'PASSWORD': os.getenv('DEFAULT_PASSWORD'),
+    'HOST': os.getenv('DEFAULT_HOST'),
+    'PORT': os.getenv('DEFAULT_PORT')
+}
+
 DATABASES = {
+    # 'local': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # },
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    },
-    'aws':{
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'secondary_db',
-        'USER': 'your_db_user',
-        'PASSWORD': 'your_db_password',
-        'HOST': 'your_db_host',
-        'PORT': 'your_db_port',
+        'ENGINE': DATABASE_SETTINGS['ENGINE'],
+        'NAME': DATABASE_SETTINGS['NAME'],
+        'USER': DATABASE_SETTINGS['USER'],
+        'PASSWORD': DATABASE_SETTINGS['PASSWORD'],
+        'HOST': DATABASE_SETTINGS['HOST'],
+        'PORT': DATABASE_SETTINGS['PORT'],
     }
 }
 

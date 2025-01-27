@@ -108,6 +108,17 @@ class Record(models.Model):
             self.hash = self.generate_hash(self.pdf_file_aws)
         
         super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        # Delete the S3 file if it exists
+        if self.pdf_file_aws:
+            self.pdf_file_aws.delete(save=False)
+        if self.tracking_mail_receipt_aws:
+            self.tracking_mail_receipt_aws.delete(save=False)
+        if self.return_receipt_file_aws:
+            self.return_receipt_file_aws.delete(save=False)
+        
+        super().delete(*args, **kwargs)
     
 
 
