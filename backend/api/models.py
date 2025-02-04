@@ -128,7 +128,12 @@ class DocumentTemplate(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
     file = models.FileField(upload_to='templates/')
+    file_path = models.CharField(max_length=255, blank=True, editable=False)
     placeholders = models.JSONField()  # Store placeholders as a JSON object
+
+    def save(self, *args, **kwargs):
+        self.file_path = self.file.path  # Save the file path
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
