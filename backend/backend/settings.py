@@ -129,18 +129,18 @@ DATABASE_SETTINGS = {
 }
 
 DATABASES = {
-    # 'local': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # },
     'default': {
-        'ENGINE': DATABASE_SETTINGS['ENGINE'],
-        'NAME': DATABASE_SETTINGS['NAME'],
-        'USER': DATABASE_SETTINGS['USER'],
-        'PASSWORD': DATABASE_SETTINGS['PASSWORD'],
-        'HOST': DATABASE_SETTINGS['HOST'],
-        'PORT': DATABASE_SETTINGS['PORT'],
-    }
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    # 'default': {
+    #     'ENGINE': DATABASE_SETTINGS['ENGINE'],
+    #     'NAME': DATABASE_SETTINGS['NAME'],
+    #     'USER': DATABASE_SETTINGS['USER'],
+    #     'PASSWORD': DATABASE_SETTINGS['PASSWORD'],
+    #     'HOST': DATABASE_SETTINGS['HOST'],
+    #     'PORT': DATABASE_SETTINGS['PORT'],
+    # }
 }
 
 

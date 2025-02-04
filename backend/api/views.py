@@ -1,17 +1,16 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
 from rest_framework import generics, viewsets, permissions, status
-from .serializers import UserSerializer, NoteSerializer, RecordSerializer
-from django.http import JsonResponse
+from .serializers import UserSerializer, NoteSerializer, RecordSerializer, DocumentTemplateSerializer, GenerateDocumentsSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.parsers import JSONParser
-from .models import Note, Record
-from uuid import UUID
+from rest_framework.response import Response
+from .models import Note, Record, DocumentTemplate
 import logging
 from django.utils import timezone
 import requests
+from api.utils import replace_placeholders_in_docx
+from docx import Document
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +41,79 @@ class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
+
+## Document Templates
+
+class DocumentTemplateListView(generics.ListAPIView):
+    queryset = DocumentTemplate.objects.all()
+    serializer_class = DocumentTemplateSerializer
+    permission_classes = [AllowAny]
+
+class GenerateDocumentsView(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = GenerateDocumentsSerializer(data=request.data)
+        if serializer.is_valid():
+            templates = serializer.validated_data['templates']
+            placeholders = serializer.validated_data['placeholders']
+            username = request.user.username
+
+            generated_files = []
+            for template_id in templates:
+                template = DocumentTemplate.objects.get(id=template_id)
+                output_file = replace_placeholders_in_docx(template.file.path, placeholders, username)
+                generated_files.append(output_file)
+
+            return Response({'generated_files': generated_files}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class ScanPlaceholdersView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        file = request.FILES['file']
+        doc = Document(file)
+        placeholders = set()
+
+        for paragraph in doc.paragraphs:
+            for run in paragraph.runs:
+                text = run.text
+                if '<<' in text and '>>' in text:
+                    placeholders.update([f"<<{ph.split('>>')[0]}>>" for ph in text.split('<<')[1:]])
+
+        for table in doc.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    for paragraph in cell.paragraphs:
+                        for run in paragraph.runs:
+                            text = run.text
+                            if '<<' in text and '>>' in text:
+                                placeholders.update([f"<<{ph.split('>>')[0]}>>" for ph in text.split('<<')[1:]])
+
+        return Response({'placeholders': list(placeholders)}, status=status.HTTP_200_OK)
+
+
+class UploadTemplateView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        file = request.FILES['file']
+        name = request.data.get('name')
+        description = request.data.get('description')
+        placeholders = request.data.get('placeholders')
+
+        template = DocumentTemplate.objects.create(
+            name=name,
+            description=description,
+            file=file,
+            placeholders=placeholders
+        )
+
+        return Response({'message': 'Template uploaded successfully', 'template_id': template.id}, status=status.HTTP_201_CREATED)
+
+
+## Records
 
 class RecordListCreate(generics.ListCreateAPIView):
     queryset = Record.objects.all()

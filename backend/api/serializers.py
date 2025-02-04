@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Note, Record
+from .models import Note, Record, DocumentTemplate
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -53,3 +53,13 @@ class RecordSerializer(serializers.ModelSerializer):
             'hash': {'required': False},
             'access_logs': {'required': False},
         }
+
+class DocumentTemplateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DocumentTemplate
+        fields = ["id", "name", "file", "placeholders"]
+        extra_kwargs = {"file": {"write_only": True}}
+
+class GenerateDocumentsSerializer(serializers.Serializer):
+    templates = serializers.ListField(child=serializers.IntegerField())
+    placeholders = serializers.DictField(child=serializers.CharField())

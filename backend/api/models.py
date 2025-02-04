@@ -118,9 +118,17 @@ class Record(models.Model):
         if self.return_receipt_file_aws:
             self.return_receipt_file_aws.delete(save=False)
         
-        super().delete(*args, **kwargs)
-    
+        super().delete(*args, **kwargs)   
 
 
     def __str__(self):
         return self.title
+
+class DocumentTemplate(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    file = models.FileField(upload_to='templates/')
+    placeholders = models.JSONField()  # Store placeholders as a JSON object
+
+    def __str__(self):
+        return self.name
