@@ -10,7 +10,7 @@ urlpatterns = [
     path('records/search/', views.RecordSearchView.as_view(), name='record-search'),
     path('records/list/', views.RecordListView.as_view(), name='record_list'),
     path('templates/scanplaceholders/', views.ScanPlaceholdersView.as_view(), name='scan-placeholders'),
-    path('templates/upload', views.UploadTemplateView.as_view(), name='upload-template'),
+    path('templates/upload/', views.UploadTemplateView.as_view(), name='upload-template'),
     path('templates/', views.DocumentTemplateListView.as_view(), name='document-template-list-create'),
     path('templates/document/generate/', views.GenerateDocumentsView.as_view(), name='generate-document'),
 ]

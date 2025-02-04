@@ -11,6 +11,7 @@ from django.utils import timezone
 import requests
 from api.utils import replace_placeholders_in_docx
 from docx import Document
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -101,7 +102,7 @@ class UploadTemplateView(APIView):
         file = request.FILES['file']
         name = request.data.get('name')
         description = request.data.get('description')
-        placeholders = request.data.get('placeholders')
+        placeholders = json.loads(request.data.get('placeholders'))
 
         template = DocumentTemplate.objects.create(
             name=name,
