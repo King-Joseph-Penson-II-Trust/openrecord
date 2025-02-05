@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Note, Record, DocumentTemplate
+from docx import Document
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -57,9 +58,20 @@ class RecordSerializer(serializers.ModelSerializer):
 class DocumentTemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = DocumentTemplate
-        fields = ["id", "name", "file", "placeholders"]
+        fields = ["id", "name", "description", "file", "placeholders"]
         extra_kwargs = {"file": {"write_only": True}}
+
+    def get_placeholders(self, obj):
+        # Logic to extract placeholders from the document
+        doc = Document(obj.file.path)
+        placeholders = set()
+        for paragraph in doc.paragraphs:
+            for run in paragraph.runs:
+                if '{' in run.text and '}' in run.text:
+                    placeholders.add(run.text.strip('{}'))
+        return list(placeholders)
 
 class GenerateDocumentsSerializer(serializers.Serializer):
     templates = serializers.ListField(child=serializers.IntegerField())
     placeholders = serializers.DictField(child=serializers.CharField())
+

@@ -1,0 +1,18 @@
+.scrollable-column {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.dynamic-form {
+  transition: opacity 0.5s ease-in-out;
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.dynamic-form.show {
+  opacity: 1;
+  height: auto;
+  max-height: 80vh;
+  overflow-y: auto;
+}

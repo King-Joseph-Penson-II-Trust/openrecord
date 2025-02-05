@@ -11,6 +11,7 @@ import ProtectedRoute from "./components/ProtectedRoute"
 import 'bootstrap/dist/css/bootstrap.min.css';
 import NewRecord from "./pages/NewRecord"
 import UploadTemplate from "./components/UploadTemplate"
+import DocumentTemplateList from "./components/DocumentTemplateList"
 
 function Logout() {
 	localStorage.clear()
@@ -52,6 +53,7 @@ function App() {
 				/>
 				<Route path="/" element={<RecordSearch />} />
 				<Route path="/uploadtemplate" element={<UploadTemplate />} />
+				<Route path="/templates" element={<DocumentTemplateList />} />
 				<Route
 					path="/records"
 					element={

@@ -49,25 +49,6 @@ class DocumentTemplateListView(generics.ListAPIView):
     queryset = DocumentTemplate.objects.all()
     serializer_class = DocumentTemplateSerializer
     permission_classes = [AllowAny]
-
-class GenerateDocumentsView(generics.GenericAPIView):
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        serializer = GenerateDocumentsSerializer(data=request.data)
-        if serializer.is_valid():
-            templates = serializer.validated_data['templates']
-            placeholders = serializer.validated_data['placeholders']
-            username = request.user.username
-
-            generated_files = []
-            for template_id in templates:
-                template = DocumentTemplate.objects.get(id=template_id)
-                output_file = replace_placeholders_in_docx(template.file.path, placeholders, username)
-                generated_files.append(output_file)
-
-            return Response({'generated_files': generated_files}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class ScanPlaceholdersView(APIView):
     permission_classes = [AllowAny]
