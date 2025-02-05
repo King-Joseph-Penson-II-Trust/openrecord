@@ -128,12 +128,15 @@ class DocumentTemplate(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
     file = models.FileField(upload_to='templates/')
-    file_path = models.CharField(max_length=255, blank=True, editable=False)
+    file_path = models.CharField(max_length=255, blank=True, editable=False)  # New field to store the file path
     placeholders = models.JSONField()  # Store placeholders as a JSON object
 
     def save(self, *args, **kwargs):
-        self.file_path = self.file.path  # Save the file path
-        super().save(*args, **kwargs)
+        if not self.pk:  # Check if the object is being created for the first time
+            super().save(*args, **kwargs)  # Save the file first to ensure the path is available
+        self.file_path = os.path.join('templates', os.path.basename(self.file.name))  # Construct the full file path
+        super().save(update_fields=['file_path'])  # Save again to update the file_path field
+
 
     def __str__(self):
         return self.name

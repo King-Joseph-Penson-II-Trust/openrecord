@@ -58,7 +58,7 @@ class RecordSerializer(serializers.ModelSerializer):
 class DocumentTemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = DocumentTemplate
-        fields = ["id", "name", "description", "file", "placeholders"]
+        fields = ["id", "name", "description", "file", "file_path", "placeholders"]
         extra_kwargs = {"file": {"write_only": True}}
 
     def get_placeholders(self, obj):

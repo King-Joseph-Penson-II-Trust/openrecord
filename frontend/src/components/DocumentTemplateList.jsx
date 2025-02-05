@@ -64,7 +64,7 @@ const DocumentTemplateList = () => {
                       <p><strong>ID:</strong> {template.id}</p>
                       <p><strong>Name:</strong> {template.name}</p>
                       <p><strong>Description:</strong> {template.description}</p>
-                      <p><strong>File Path:</strong> {template.file}</p>
+                      <p><strong>File Path:</strong> {template.file_path}</p>
                       <p><strong>Placeholders:</strong></p>
                       <ul>
                         {Array.isArray(template.placeholders) && template.placeholders.map((placeholder, index) => (
