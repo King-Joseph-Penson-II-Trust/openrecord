@@ -1,4 +1,4 @@
-#!/home/king/openrecord/venv/bin/python3
+#!/home/king/Projects/openrecord/venv/bin/python3
 
 import sys
 import json

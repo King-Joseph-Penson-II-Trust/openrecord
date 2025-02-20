@@ -36,6 +36,27 @@ const DocumentTemplateList = () => {
     }));
   };
 
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (selectedTemplate) {
+      const formData = new FormData();
+      formData.append('template_id', selectedTemplate.id);
+      formData.append('replacements', JSON.stringify(formValues[selectedTemplate.id]));
+
+      try {
+        const response = await api.post('/api/replace_placeholders/', formData, { responseType: 'blob' });
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'modified_template.docx');
+        document.body.appendChild(link);
+        link.click();
+      } catch (error) {
+        console.error('Error replacing placeholders:', error);
+      }
+    }
+  };
+
   return (
     <Row>
       <Col md={4} className="scrollable-column">
@@ -86,7 +107,7 @@ const DocumentTemplateList = () => {
         {selectedTemplate && (
           <div>
             <h2>Create Document from Template: {selectedTemplate.name}</h2>
-            <Form>
+            <Form onSubmit={handleSubmit}>
               {Array.isArray(selectedTemplate.placeholders) && selectedTemplate.placeholders.map((placeholder, index) => (
                 <Form.Group controlId={`form-${selectedTemplate.id}-${index}`} key={index}>
                   <Form.Label>{placeholder}</Form.Label>
@@ -97,7 +118,7 @@ const DocumentTemplateList = () => {
                   />
                 </Form.Group>
               ))}
-              <Button variant="primary" type="button">
+              <Button variant="primary" type="submit">
                 Create
               </Button>
             </Form>

@@ -4,3 +4,4 @@ backend/backend/.env
 notes
 
 templates/
+generated_docs/

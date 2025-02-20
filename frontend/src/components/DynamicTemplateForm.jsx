@@ -15,7 +15,7 @@ const DynamicForm = ({ template, placeholders }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.post('/api/create-document/', {
+      const response = await api.post('/api/templates/scanplaceholders/', {
         template: template.file,
         data: formData,
       });

@@ -11,4 +11,6 @@ python-dotenv
 django-storages
 boto3
 requests
+python-docx
+
 python-decouple

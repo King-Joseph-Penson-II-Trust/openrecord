@@ -10,7 +10,7 @@ import RecordSearch from "./components/RecordSearch"
 import ProtectedRoute from "./components/ProtectedRoute"
 import 'bootstrap/dist/css/bootstrap.min.css';
 import NewRecord from "./pages/NewRecord"
-import UploadTemplate from "./components/UploadTemplate"
+import UploadTemplateForm from "./components/UploadTemplateForm"
 import DocumentTemplateList from "./components/DocumentTemplateList"
 
 function Logout() {
@@ -52,7 +52,7 @@ function App() {
 					}
 				/>
 				<Route path="/" element={<RecordSearch />} />
-				<Route path="/uploadtemplate" element={<UploadTemplate />} />
+				<Route path="/uploadtemplate" element={<UploadTemplateForm />} />
 				<Route path="/templates" element={<DocumentTemplateList />} />
 				<Route
 					path="/records"

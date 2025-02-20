@@ -12,6 +12,10 @@ import requests
 from api.utils import replace_placeholders_in_docx
 from docx import Document
 import json
+from django.http import HttpResponse
+from io import BytesIO
+import os
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -56,13 +60,13 @@ class ScanPlaceholdersView(APIView):
     def post(self, request, *args, **kwargs):
         file = request.FILES['file']
         doc = Document(file)
-        placeholders = set()
+        placeholders = []
 
         for paragraph in doc.paragraphs:
             for run in paragraph.runs:
                 text = run.text
                 if '<<' in text and '>>' in text:
-                    placeholders.update([f"<<{ph.split('>>')[0]}>>" for ph in text.split('<<')[1:]])
+                    placeholders.extend([f"<<{ph.split('>>')[0]}>>" for ph in text.split('<<')[1:]])
 
         for table in doc.tables:
             for row in table.rows:
@@ -71,9 +75,14 @@ class ScanPlaceholdersView(APIView):
                         for run in paragraph.runs:
                             text = run.text
                             if '<<' in text and '>>' in text:
-                                placeholders.update([f"<<{ph.split('>>')[0]}>>" for ph in text.split('<<')[1:]])
+                                placeholders.extend([f"<<{ph.split('>>')[0]}>>" for ph in text.split('<<')[1:]])
 
-        return Response({'placeholders': list(placeholders)}, status=status.HTTP_200_OK)
+        # Remove duplicates while preserving order
+        placeholders = list(dict.fromkeys(placeholders))
+
+        return Response({'placeholders': placeholders}, status=status.HTTP_200_OK)
+
+
 
 
 class UploadTemplateView(APIView):
@@ -94,6 +103,84 @@ class UploadTemplateView(APIView):
 
         return Response({'message': 'Template uploaded successfully', 'template_id': template.id}, status=status.HTTP_201_CREATED)
 
+
+def replace_placeholders_in_docx(input_file, placeholders, output_folder):
+    """
+    Replace placeholders in a Word document based on a JSON of placeholders and save the new document.
+
+    :param input_file: Path to the input Word document (.docx)
+    :param placeholders: Dictionary of placeholder keys and replacement values
+    :param output_folder: Path to the folder where the updated document will be saved
+    """
+    # Ensure the output folder exists
+    os.makedirs(output_folder, exist_ok=True)
+
+    # Load the Word document
+    doc = Document(input_file)
+
+    # Iterate over all paragraphs in the document
+    for paragraph in doc.paragraphs:
+        # Combine all runs into a single string for placeholder replacement
+        full_text = "".join(run.text for run in paragraph.runs)
+        updated_text = full_text
+        for placeholder, value in placeholders.items():
+            updated_text = updated_text.replace(f"<<{placeholder}>>", value)
+
+        # Update runs if the text was modified
+        if full_text != updated_text:
+            for run in paragraph.runs:
+                run.text = ""  # Clear existing runs
+            paragraph.runs[0].text = updated_text  # Set updated text in the first run
+
+    # Iterate over all tables in the document
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                for paragraph in cell.paragraphs:
+                    # Combine all runs into a single string for placeholder replacement
+                    full_text = "".join(run.text for run in paragraph.runs)
+                    updated_text = full_text
+                    for placeholder, value in placeholders.items():
+                        updated_text = updated_text.replace(f"<<{placeholder}>>", value)
+
+                    # Update runs if the text was modified
+                    if full_text != updated_text:
+                        for run in paragraph.runs:
+                            run.text = ""  # Clear existing runs
+                        paragraph.runs[0].text = updated_text  # Set updated text in the first run
+
+    # Define the output file path
+    output_file = os.path.join(output_folder, os.path.basename(input_file))
+
+    # Save the updated document
+    doc.save(output_file)
+
+    print(f"Document saved to: {output_file}")
+    
+    return output_file
+
+class ReplacePlaceholdersView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        template_id = request.data.get('template_id')
+        replacements = json.loads(request.data.get('replacements'))
+
+        # Retrieve the document template based on the provided template ID
+        try:
+            template = DocumentTemplate.objects.get(id=template_id)
+        except DocumentTemplate.DoesNotExist:
+            return Response({'error': 'Template not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        input_file_path = os.path.join(settings.BASE_DIR, template.file_path)
+
+        # Define the output folder
+        output_folder = os.path.join(settings.MEDIA_ROOT, 'generated_docs')
+
+        # Replace placeholders in the document
+        output_file_path = replace_placeholders_in_docx(input_file_path, replacements, output_folder)
+
+        return Response({'message': 'Document generated successfully', 'output_file': output_file_path}, status=status.HTTP_200_OK)
 
 ## Records
 
