@@ -44,13 +44,8 @@ const DocumentTemplateList = () => {
       formData.append('replacements', JSON.stringify(formValues[selectedTemplate.id]));
 
       try {
-        const response = await api.post('/api/replace_placeholders/', formData, { responseType: 'blob' });
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'modified_template.docx');
-        document.body.appendChild(link);
-        link.click();
+        const response = await api.post('/api/replace_placeholders/', formData);
+        console.log('Document generated successfully:', response.data);
       } catch (error) {
         console.error('Error replacing placeholders:', error);
       }
