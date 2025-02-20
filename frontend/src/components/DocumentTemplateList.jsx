@@ -52,6 +52,16 @@ const DocumentTemplateList = () => {
     }
   };
 
+  const handleDelete = async (templateId) => {
+    try {
+      await api.delete(`/api/templates/delete/${templateId}/`);
+      setTemplates(templates.filter(template => template.id !== templateId));
+      console.log('Template deleted successfully');
+    } catch (error) {
+      console.error('Error deleting template:', error);
+    }
+  };
+
   return (
     <Row>
       <Col md={4} className="scrollable-column">
@@ -89,6 +99,9 @@ const DocumentTemplateList = () => {
                       </ul>
                       <Button variant="primary" onClick={() => setSelectedTemplate(template)}>
                         Start Drafting
+                      </Button>
+                      <Button variant="danger" onClick={() => handleDelete(template.id)}>
+                        Delete
                       </Button>
                     </Card>
                   </div>

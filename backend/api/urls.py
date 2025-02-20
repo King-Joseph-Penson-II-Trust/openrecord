@@ -13,6 +13,7 @@ urlpatterns = [
     path('templates/upload/', views.UploadTemplateView.as_view(), name='upload-template'),
     path('templates/', views.DocumentTemplateListView.as_view(), name='document-template-list-create'),
     path('replace_placeholders/', views.ReplacePlaceholdersView.as_view(), name='replace_placeholders'),
+    path('templates/delete/<int:pk>/', views.DeleteTemplateView.as_view(), name='delete-template'),
     # path('templates/document/generate/', views.GenerateDocumentsView.as_view(), name='generate-document'),
 ]
 

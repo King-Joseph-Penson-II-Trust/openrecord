@@ -182,6 +182,27 @@ class ReplacePlaceholdersView(APIView):
 
         return Response({'message': 'Document generated successfully', 'output_file': output_file_path}, status=status.HTTP_200_OK)
 
+class DeleteTemplateView(APIView):
+    permission_classes = [AllowAny]
+
+    def delete(self, request, *args, **kwargs):
+        template_id = kwargs.get('pk')
+
+        # Retrieve the document template based on the provided template ID
+        try:
+            template = DocumentTemplate.objects.get(id=template_id)
+        except DocumentTemplate.DoesNotExist:
+            return Response({'error': 'Template not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Delete the associated file from the filesystem
+        if template.file and os.path.isfile(template.file.path):
+            os.remove(template.file.path)
+
+        # Delete the template from the database
+        template.delete()
+
+        return Response({'message': 'Template deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
 ## Records
 
 class RecordListCreate(generics.ListCreateAPIView):
