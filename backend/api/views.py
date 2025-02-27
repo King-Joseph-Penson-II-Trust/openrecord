@@ -94,14 +94,23 @@ class UploadTemplateView(APIView):
         description = request.data.get('description')
         placeholders = json.loads(request.data.get('placeholders'))
 
+        # Define the file path
+        file_path = os.path.join('templates', file.name)
+
+        # Save the file to the defined path
+        with open(file_path, 'wb+') as destination:
+            for chunk in file.chunks():
+                destination.write(chunk)
+
+        # Create the DocumentTemplate instance
         template = DocumentTemplate.objects.create(
             name=name,
             description=description,
-            file=file,
+            file=file_path,
             placeholders=placeholders
         )
 
-        return Response({'message': 'Template uploaded successfully', 'template_id': template.id}, status=status.HTTP_201_CREATED)
+        return Response({'message': 'Template uploaded successfully', 'template_id': template.id, 'template_path': template.file_path}, status=status.HTTP_201_CREATED)
 
 
 def replace_placeholders_in_docx(input_file, placeholders, output_folder):
@@ -172,10 +181,12 @@ class ReplacePlaceholdersView(APIView):
         except DocumentTemplate.DoesNotExist:
             return Response({'error': 'Template not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        input_file_path = os.path.join(settings.BASE_DIR, template.file_path)
+        # Update the input file path to the correct directory
+        input_file_path = os.path.join('templates', os.path.basename(template.file_path))
+
 
         # Define the output folder
-        output_folder = os.path.join(settings.MEDIA_ROOT, 'generated_docs')
+        output_folder = os.path.join('generated_docs')
 
         # Replace placeholders in the document
         output_file_path = replace_placeholders_in_docx(input_file_path, replacements, output_folder)
