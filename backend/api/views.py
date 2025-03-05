@@ -95,7 +95,11 @@ class UploadTemplateView(APIView):
         placeholders = json.loads(request.data.get('placeholders'))
 
         # Define the file path
-        file_path = os.path.join('templates', file.name)
+        templates_dir = 'templates'
+        file_path = os.path.join(templates_dir, file.name)
+
+        # Ensure the templates directory exists
+        os.makedirs(templates_dir, exist_ok=True)
 
         # Save the file to the defined path
         with open(file_path, 'wb+') as destination:
